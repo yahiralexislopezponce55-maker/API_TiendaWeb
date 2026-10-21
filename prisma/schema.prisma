@@ -1,0 +1,113 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model Carrito {
+  id_carrito      Int               @id @default(autoincrement())
+  id_cliente      Int?
+  fecha_creacion  DateTime?         @db.Timestamp(6)
+  estado          String?           @db.VarChar(50)
+  Clientes        Clientes?         @relation(fields: [id_cliente], references: [id_cliente], onDelete: NoAction, onUpdate: NoAction)
+  Detalle_Carrito Detalle_Carrito[]
+}
+
+model Categorias {
+  id_categoria Int         @id @default(autoincrement())
+  nombre       String?     @db.VarChar(50)
+  descripcion  String?     @db.VarChar(200)
+  Productos    Productos[]
+}
+
+model Clientes {
+  id_cliente Int        @id @default(autoincrement())
+  nombre     String?    @db.VarChar(50)
+  apellido   String?    @db.VarChar(50)
+  correo     String?    @db.VarChar(100)
+  telefono   String?    @db.VarChar(20)
+  direccion  String?    @db.VarChar(200)
+  Carrito    Carrito[]
+  Usuarios   Usuarios[]
+  Ventas     Ventas[]
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model Detalle_Carrito {
+  id_detalle_carrito Int        @id @default(autoincrement())
+  id_carrito         Int?
+  id_producto        Int?
+  cantidad           Int?
+  Carrito            Carrito?   @relation(fields: [id_carrito], references: [id_carrito], onDelete: NoAction, onUpdate: NoAction)
+  Productos          Productos? @relation(fields: [id_producto], references: [id_producto], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model Detalle_Metodo_Pago {
+  id_detalle_pago Int           @id @default(autoincrement())
+  id_venta        Int?
+  id_metodo_pago  Int?
+  monto           Decimal?      @db.Decimal(10, 2)
+  referencia      String?       @db.VarChar(100)
+  fecha_pago      DateTime?     @db.Timestamp(6)
+  Metodos_Pago    Metodos_Pago? @relation(fields: [id_metodo_pago], references: [id_metodo_pago], onDelete: NoAction, onUpdate: NoAction)
+  Ventas          Ventas?       @relation(fields: [id_venta], references: [id_venta], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model Detalle_Ventas {
+  id_detalle  Int        @id @default(autoincrement())
+  id_venta    Int?
+  id_producto Int?
+  cantidad    Int?
+  precio      Decimal?   @db.Decimal(10, 2)
+  subtotal    Decimal?   @db.Decimal(10, 2)
+  Productos   Productos? @relation(fields: [id_producto], references: [id_producto], onDelete: NoAction, onUpdate: NoAction)
+  Ventas      Ventas?    @relation(fields: [id_venta], references: [id_venta], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Metodos_Pago {
+  id_metodo_pago      Int                   @id @default(autoincrement())
+  nombre              String?               @db.VarChar(50)
+  descripcion         String?               @db.VarChar(200)
+  estado              Boolean?
+  Detalle_Metodo_Pago Detalle_Metodo_Pago[]
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model Productos {
+  id_producto     Int               @id @default(autoincrement())
+  id_categoria    Int?
+  nombre          String?           @db.VarChar(50)
+  descripcion     String?           @db.VarChar(200)
+  precio          Decimal?          @db.Decimal(10, 2)
+  stock           Int?
+  Detalle_Carrito Detalle_Carrito[]
+  Detalle_Ventas  Detalle_Ventas[]
+  Categorias      Categorias?       @relation(fields: [id_categoria], references: [id_categoria], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model Usuarios {
+  id_usuario Int       @id @default(autoincrement())
+  id_cliente Int?
+  usuario    String?   @db.VarChar(50)
+  password   String?   @db.VarChar(30)
+  rol        String?   @db.VarChar(50)
+  Clientes   Clientes? @relation(fields: [id_cliente], references: [id_cliente], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model Ventas {
+  id_venta            Int                   @id @default(autoincrement())
+  id_cliente          Int?
+  fecha               DateTime?             @db.Timestamp(6)
+  total               Decimal?              @db.Decimal(10, 2)
+  estado              String?               @db.VarChar(50)
+  Detalle_Metodo_Pago Detalle_Metodo_Pago[]
+  Detalle_Ventas      Detalle_Ventas[]
+  Clientes            Clientes?             @relation(fields: [id_cliente], references: [id_cliente], onDelete: NoAction, onUpdate: NoAction)
+}
